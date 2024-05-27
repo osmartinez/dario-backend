@@ -8,12 +8,13 @@ require("dotenv").config();
 const app = express()
 
 const port = process.env.PORT || 3000;
-const host = process.env.HOST || process.env.FRONT_URL_VERCEL;
 
-var corsOptions = {
-  origin: host,
-  optionsSuccessStatus: 200,
-};
+const corsOptions = {
+    origin: ['http://localhost:4200', 'https://paradise-films-frontend-angular-js.vercel.app'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204
+  };
 app.use(cors(corsOptions));
 
 app.use(express.json())
