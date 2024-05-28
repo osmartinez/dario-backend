@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 const host = process.env.HOST || process.env.FRONT_URL_VERCEL;
 
 var corsOptions = {
-  origin: '*',
+  origin: host,
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
@@ -37,7 +37,7 @@ app.listen(port, () =>{
     console.log('API funcionando en puerto 3000')
 })
 
-const allowCors = fn => async (req, res) => {
+/* const allowCors = fn => async (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true)
     res.setHeader('Access-Control-Allow-Origin', '*')
     // another common pattern
@@ -53,7 +53,7 @@ const allowCors = fn => async (req, res) => {
     }
     return await fn(req, res)
   }
- /*  
+  
   const handler = (req, res) => {
     const d = new Date()
     res.end(JSON.stringify({ date: d.toString() }))
