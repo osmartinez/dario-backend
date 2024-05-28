@@ -11,9 +11,11 @@ const port = process.env.PORT || 3000;
 const host = process.env.HOST || process.env.FRONT_URL_VERCEL;
 
 var corsOptions = {
-  origin: host,
-  optionsSuccessStatus: 200,
-};
+    origin: ['http://localhost:4200', 'https://paradise-films-frontend-angular-js.vercel.app'],
+    methods: 'GET,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204
+  };
 app.use(cors(corsOptions));
 
 app.use(express.json())
@@ -21,7 +23,10 @@ app.use(express.json())
 app.set("secretKey", process.env.JWTSECRET)
 
 
-mongoose.connect(process.env.conectStream)
+mongoose.connect(process.env.conectStream,{
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
 .then(() =>{
     console.log('Conexión con base de datos exitosa')
 })
@@ -34,7 +39,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/films", filmsRoutes)
 
 app.listen(port, () =>{
-    console.log('API funcionando en puerto 3000')
+    console.log(`API funcionando en puerto ${port}`)
 })
 
 /* const allowCors = fn => async (req, res) => {
