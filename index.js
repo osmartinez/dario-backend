@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 const host = process.env.HOST || process.env.FRONT_URL_VERCEL;
 
 var corsOptions = {
-  origin: host,
+  origin: '*',
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
