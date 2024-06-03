@@ -2,58 +2,36 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 
-async function searchUsers(req, res){
-  try{
-    usuarios = await User.find({})
-    res.json(usuarios)
-  } catch (error){
-    res.status(500).json({ msg: "error interno del servidor para buscar users" });
-  }
+async function searchUsers(){
+  const usuarios = await User.find({});
+  return usuarios;
 };
 
-async function signup(req, res) {
-  try{
-    const hash = await bcrypt.hash(req.body.password, 12);
-    const newUser = new User({
-      email: req.body.email,
-      password: hash,
-      role: "user",
-      name: req.body.name,
-    });
-    await newUser.save();
-    return res.json({ msg: "registro correcto" });
-  } catch(error){
-    res.status(500).json({msg: 'error al registrase'})
-  }
+/**
+ * @param {} body 
+ * @returns devulve el usuario creado, con un rol= "user" por defecto y una contraseña encriptada.
+ */
+async function signup(body) {
+  const hash = await bcrypt.hash(body.password, 12);
+  const newUser = new User({
+    email: body.email,
+    password: hash,
+    role: "user",
+    name: body.name,
+  });
+  await newUser.save();
+  return newUser;
 }
 
 
-async function login(req, res) {
-  try {
-    const foundUser = await User.findOne({ email: req.body.email });
-    if (!foundUser) {
-      return res.status(400).json({ msg: "credenciales no validas" });
-    } else {
-      const resultCompare = await bcrypt.compare(
-        req.body.password,
-        foundUser.password
-      );
-      if (!resultCompare) {
-        //la contraseña es incorrecta
-        return res.status(400).json({ msg: "credenciales no validas" });
-      } else {
-        const token = jwt.sign({ userId: foundUser._id }, process.env.JWTSECRET, {
-          expiresIn: "3h",
-        });
-        return res
-          .status(200)
-          .json({ msg: "logeado correctamente", token: token, role: foundUser.role});
-      }
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ msg: "error al logear" });
-  }
+/**
+ * 
+ * @param {*} email 
+ * @returns devulve el usuario encontrado para confirmar que existe en la base de datos y pueda iniciar sesión
+ */
+async function login(email) {
+  const usuarioEncontrado = await User.findOne({ email: email });
+  return usuarioEncontrado
 }
 
 async function cambiarUsuario(id, usuario) {
@@ -75,27 +53,22 @@ async function cambiarUsuario(id, usuario) {
 }
 
 async function modifyPwd(id, nuevaPassword) {
-  try {
     const newPwdCrypt = await bcrypt.hash(nuevaPassword, 12);
     const objNewPwdCrypt = {
       password: newPwdCrypt,
     };
     const userToModifyPwd = await User.findByIdAndUpdate(id, objNewPwdCrypt);
     return userToModifyPwd;
-  } catch (error) {
-    res.status(500).json({ msg: "error interno del servidor" });
-  }
 }
 
-async function borrarUsuario(req, res){
-  try{
-    const userDeleted = await User.findByIdAndDelete(req.params.id)
-    return res.status(200).json({msg: "usuario borrado correctamente", userDeleted})
-  } catch(error){
-    res.status(500).json({ msg: "error interno del servidor" });
-      console.error(error);    
-  }
-  
+/**
+ * 
+ * @param {*} id 
+ * @returns nos devuelve el usuario que acabamos de borrar con ese id
+ */
+async function deleteUser(id) {
+  const usuarioBorrado = await User.findByIdAndDelete(id);
+  return usuarioBorrado;
 }
 
 
@@ -105,5 +78,5 @@ module.exports = {
   login,
   cambiarUsuario,
   modifyPwd,
-  borrarUsuario
+  deleteUser
 };
