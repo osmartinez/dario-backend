@@ -61,7 +61,7 @@ router.post("/login", async (req, res) => {
             expiresIn: "2h",
           }
         );
-        return res.json({
+        return res.status(200).json({
           msg: "logeado correctamente",
           token: token,
           role: usuarioEncontrado.role,
