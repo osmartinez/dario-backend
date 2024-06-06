@@ -109,11 +109,11 @@ router.patch(
   async (req, res) => {
     try {
       await modifyPwd(req.params.id, req.body.nuevaPassword);
-      res
+      return res
         .status(200)
         .json({ msg: "la contraseña ha sido modificada con éxito" });
     } catch (error) {
-      res.status(500).json({ msg: "error interno del servidor" });
+      return res.status(500).json({ msg: "error interno del servidor" });
       console.error(error);
     }
   }
