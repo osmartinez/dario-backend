@@ -13,7 +13,10 @@ const {
 } = require("../controllers/user.controller");
 
 const { isAdmin, isAuthenticated } = require("../middleware/auth.middleware");
-const {pwdIguales, middleWareVerifYCambioContrasena} = require ("../middleware/usuario.middleware")
+const {
+  pwdIguales,
+  middleWareVerifYCambioContrasena,
+} = require("../middleware/usuario.middleware");
 
 router.get("/", isAdmin, async (req, res) => {
   try {
@@ -34,6 +37,7 @@ router.post("/signup", pwdIguales, async (req, res) => {
     const usuarioRegistrado = await signup(req.body);
     return res.json({ msg: "registro correcto", usuarioRegistrado });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ msg: "error al registrase" });
   }
 });
@@ -45,7 +49,7 @@ router.post("/login", async (req, res) => {
   try {
     const usuarioEncontrado = await login(req.body.email);
     if (!usuarioEncontrado) {
-      return res.status(400).json({ msg: "credenciales no validas"});
+      return res.status(400).json({ msg: "credenciales no validas" });
     } else {
       const compararResultado = await bcrypt.compare(
         req.body.password,
@@ -56,7 +60,7 @@ router.post("/login", async (req, res) => {
       } else {
         const token = jwt.sign(
           { userId: usuarioEncontrado._id },
-          process.env.JWTSECRET,
+          "secret123",
           {
             expiresIn: "2h",
           }
@@ -66,7 +70,7 @@ router.post("/login", async (req, res) => {
           token: token,
           role: usuarioEncontrado.role,
           nombre: usuarioEncontrado.name,
-          usuarioId: usuarioEncontrado._id
+          usuarioId: usuarioEncontrado._id,
         });
       }
     }
@@ -84,9 +88,9 @@ router.delete("/:id", isAdmin, async (req, res) => {
     res.status(500).json({ msg: "error interno del servidor" });
   }
 });
-/* 
-* Para modificar un usuario, tendremos que poner en la ruta el "id" del usuario a modificar y añadir la query "?token=..(token de admin).."
-* Solo de esta forma, estando loggeado como admin y con el id del usuario a modificar, se podrá modificar y poner otro usuario con role admin.
+/*
+ * Para modificar un usuario, tendremos que poner en la ruta el "id" del usuario a modificar y añadir la query "?token=..(token de admin).."
+ * Solo de esta forma, estando loggeado como admin y con el id del usuario a modificar, se podrá modificar y poner otro usuario con role admin.
  */
 router.put("/:id", isAdmin, async (req, res) => {
   try {
@@ -99,8 +103,8 @@ router.put("/:id", isAdmin, async (req, res) => {
   }
 });
 
-/* 
-* El usuario necesitará estar loggeado (dentro de su cuenta), para modificar su contraseña
+/*
+ * El usuario necesitará estar loggeado (dentro de su cuenta), para modificar su contraseña
  */
 router.patch(
   "/:id",
@@ -118,6 +122,5 @@ router.patch(
     }
   }
 );
-
 
 module.exports = router;
